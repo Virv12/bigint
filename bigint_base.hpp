@@ -119,55 +119,8 @@ struct bigint {
 		return r;
 	}
 
-	[[nodiscard]] constexpr bigint operator- () const& noexcept { return ~*this + 1; }
-	[[nodiscard]] constexpr bigint&& operator- () && noexcept { return ~std::move(*this) + 1; }
-
-	constexpr bigint& operator+= (bigint const& oth) noexcept {
-		uint64_t carry = 0;
-		for (size_t i = 0; i < N; i++) {
-			auto s = (__uint128_t)(*this)[i] + oth[i] + carry;
-			(*this)[i] = s;
-			carry = s >> 64;
-		}
-		return *this;
-	}
-
-	[[nodiscard]] friend constexpr bigint&& operator+ (bigint&& a, bigint const& b) noexcept { return std::move(a += b); }
-	[[nodiscard]] friend constexpr bigint&& operator+ (bigint const& a, bigint&& b) noexcept { return std::move(b += a); }
-	[[nodiscard]] friend constexpr bigint&& operator+ (bigint&& a, bigint&& b) noexcept { return std::move(a += b); }
-	[[nodiscard]] friend constexpr bigint operator+ (bigint const& a, bigint const& b) noexcept {
-		bigint r;
-
-		uint64_t carry = 0;
-		for (size_t i = 0; i < N; i++) {
-			auto s = (__uint128_t)a[i] + b[i] + carry;
-			r[i] = s;
-			carry = s >> 64;
-		}
-
-		return r;
-	}
-
-	constexpr bigint& operator-= (bigint const& oth) noexcept {
-		uint64_t carry = 0;
-		for (size_t i = 0; i < N; i++) {
-			auto t = (__int128)(*this)[i] - oth[i] - carry;
-			(*this)[i] = t;
-			carry = t < 0;
-		}
-		return *this;
-	}
-
-	[[nodiscard]] constexpr bigint&& operator- (bigint const& oth) && noexcept { return std::move(*this -= oth); }
-	[[nodiscard]] friend constexpr bigint operator- (bigint const& a, bigint const& b) noexcept {
-		bigint r;
-		uint64_t carry = 0;
-		for (size_t i = 0; i < N; i++) {
-			auto t = (__int128)a[i] - b[i] - carry;
-			r[i] = t;
-			carry = t < 0;
-		}
-		return r;
+	[[nodiscard]] explicit constexpr operator bool() const noexcept {
+		return std::find_if(digits.begin(), digits.end(), [] (uint64_t d) -> bool { return d; }) != digits.end();
 	}
 
 	[[nodiscard]] constexpr bool operator== (bigint const& b) const noexcept {

@@ -2,7 +2,7 @@
 #define BIGINT_DIV 1
 
 #include <utility>
-#include "bigint.hpp"
+#include "bigint_base.hpp"
 
 template <size_t N>
 [[nodiscard]] constexpr bigint<N> operator/ (bigint<N> const &a, bigint<N> const &b) noexcept { return div(a, b).first; }

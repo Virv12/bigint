@@ -1,7 +1,7 @@
 #ifndef BIGINT_MULT
 #define BIGINT_MULT 1
 
-#include "bigint.hpp"
+#include "bigint_base.hpp"
 
 template <size_t N>
 [[nodiscard]] constexpr bigint<N> naive_mult(bigint<N> const &a, bigint<N> const &b) noexcept {
