@@ -188,8 +188,8 @@ struct bigint {
 
 		for (size_t i = 0; i < max; i++) {
 			if (n[i / 64] >> (i % 64) & 1)
-				r = mult_ext(r, a) % m;
-			a = mult_ext(a, a) % m;
+				r = mult_ext(r, a) % (bigint<2*N>)m;
+			a = mult_ext(a, a) % (bigint<2*N>)m;
 		}
 
 		return r;
@@ -201,8 +201,8 @@ struct bigint {
 
 		for (size_t i = 0; i < max; i++) {
 			if (n[i / 64] >> (i % 64) & 1)
-				r = mult_ext(r, a) % m;
-			a = mult_ext(a, a) % m;
+				r = mult_ext(r, a) % (bigint<2*N>)m;
+			a = mult_ext(a, a) % (bigint<2*N>)m;
 		}
 
 		return r;
