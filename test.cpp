@@ -1,47 +1,41 @@
 #include <cstdio>
+#include <iostream>
 #include "bigint.hpp"
 
-void test_impl(size_t times, bool (*foo)(), char const str[]) {
-	while (times--)
-		if (!foo()) {
-			puts("test failed:");
-			puts(str);
+template <class... T>
+void test_impl(size_t times, bool (*foo)(T...), char const str[]) {
+	auto test = [foo, str]<size_t... Idx>(std::index_sequence<Idx...>) {
+		auto x = std::tuple{T::rand()...};
+		bool res = foo(std::get<Idx>(x)...);
+		if (!res) {
+			std::cerr << "Test failed: " << str << '\n';
+			((std::cerr << std::get<Idx>(x) << '\n'), ...);
 			exit(1);
 		}
+	};
+
+	while (times--)
+		test(std::make_index_sequence<sizeof...(T)>());
+
+	std::cerr << "Test passed: " << str << '\n';
 }
 
-#define TEST(times, ...) test_impl(times, __VA_ARGS__, #__VA_ARGS__)
+#define TEST(times, ...) test_impl(times, +__VA_ARGS__, #__VA_ARGS__)
 
 int main() {
-	TEST(1, [] { return std::is_trivial_v<bigint<64>>; });
+	TEST(1,   [] { return std::is_trivial_v<bigint<8>>; });
+	TEST(1e6, [](bigint<8> a) { return a == a; });
+	TEST(1e6, [](bigint<8> a) { return a == - -a; });
 
-	TEST(1e6, [] {
-		auto const a = bigint<8>::rand();
-		return a == a;
-	});
+	TEST(1e6, [](bigint<8> a)                           { return a + 0 == a; });
+	TEST(1e6, [](bigint<8> a, bigint<8> b)              { return a + b == b + a; });
+	TEST(1e6, [](bigint<8> a, bigint<8> b, bigint<8> c) { return (a + b) + c == a + (b + c); });
 
-	TEST(1e6, [] {
-		auto const a = bigint<8>::rand();
-		return a == - -a;
-	});
+	TEST(1e6, [](bigint<8> a) { return a - a == 0; });
+	TEST(1e6, [](bigint<8> a, bigint<8> b) { return a - b + b == a; });
 
-	TEST(1e6, [] {
-		auto const a = bigint<8>::rand();
-		return a - a == 0;
-	});
-
-	TEST(1e6, [] {
-		auto const a = bigint<8>::rand();
-		auto const b = bigint<8>::rand();
-		return a - b + b == a;
-	});
-
-	TEST(1e6, [] {
-		auto const a = bigint<8>::rand();
-		auto const b = bigint<8>::rand();
+	TEST(1e6, [](bigint<8> a, bigint<8> b) {
 		auto const [q, r] = div(a, b);
 		return r < b && q*b + r == a;
 	});
-
-	puts("All tests passed");
 }
