@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <array>
 #include <ostream>
+#include <random>
 #include <bit>
 
 template <size_t N>
@@ -208,25 +209,11 @@ struct bigint {
 		return r;
 	}
 	
-	[[nodiscard]] static bigint rand() noexcept {
-		bigint r;
-		for (size_t i = 0; i < N; i++)
-			r[i] = ((uint64_t)std::rand() << 31 | std::rand()) << 31 | std::rand();
-		return r;
-	}
+	[[deprecated("consider using bigint::rand(std::mt19937_64&)")]] [[nodiscard]] static bigint rand() noexcept;
+	[[nodiscard]] static bigint rand(bigint const&) noexcept;
+	[[nodiscard]] static bigint rand(bigint const&, bigint const&) noexcept;
 
-	[[nodiscard]] static bigint rand(bigint const& max) noexcept {
-		bigint r;
-		for (size_t i = 64 * N - max.leading_zeros() - 1; i < 64 * N; i--)
-			r[i / 64] |= uint64_t(std::rand() & 1) << (i % 64);
-		if (!(r < max))
-			r -= max;
-		return r;
-	}
-
-	[[nodiscard]] static bigint rand(bigint const& min, bigint const& max) noexcept {
-		return rand(max - min) + min;
-	}
+	[[nodiscard]] static bigint rand(std::mt19937_64&);
 };
 
 #endif

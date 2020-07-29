@@ -2,10 +2,16 @@
 #include <iostream>
 #include "bigint.hpp"
 
+static std::mt19937_64 random_engine([] {
+	auto const seed = time(0);
+	std::cerr << "Test seed: " << seed << '\n';
+	return seed;
+} ());
+
 template <class... T>
 void test_impl(size_t times, bool (*foo)(T...), char const str[]) {
 	auto test = [foo, str]<size_t... Idx>(std::index_sequence<Idx...>) {
-		auto x = std::tuple{T::rand()...};
+		auto x = std::tuple{T::rand(random_engine)...};
 		bool res = foo(std::get<Idx>(x)...);
 		if (!res) {
 			std::cerr << "Test failed: " << str << '\n';

@@ -25,10 +25,15 @@ int main() {
 	}
 }
 
-bigint<64> a = bigint<64>::rand();
-bigint<64> b = bigint<64>::rand();
+static std::mt19937_64 random_engine;
+
+bigint<64> a = bigint<64>::rand(random_engine);
+bigint<64> b = bigint<64>::rand(random_engine);
 bigint<64> c, d;
 
 BENCHMARK(1e6, [] { std::tie(c, d) = div(a, b); });
 BENCHMARK(1e6, [] { c = a % b; });
 BENCHMARK(1e6, [] { c = a / b; });
+
+// BENCHMARK(1e6, [] { c = c.rand(); });
+BENCHMARK(1e6, [] { c = c.rand(random_engine); });
